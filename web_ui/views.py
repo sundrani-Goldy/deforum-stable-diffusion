@@ -24,8 +24,39 @@ class test(viewsets.ModelViewSet):
         
     def create(self, request):
         prompts = request.data['prompts']
-        neg_prompts = "nswf,nudity,sexual,watermarks,"
+        neg_prompts = """Pornography and explicit adult content,
+        Nudity and sexually suggestive images,
+        Graphic violence and gore,
+        Hate symbols and offensive imagery,
+        Child exploitation and abuse-related content,
+        Racially offensive or discriminatory images,
+        Images promoting terrorism or extremist ideologies,
+        Animal cruelty and harm-related images,
+        Self-harm or suicide-related images,
+        Images promoting illegal activities or substances,
+        Sensitive medical imagery and private information,
+        Misleading or deceptive images,
+        Images containing copyrighted material without permission,
+        Violent or abusive images targeting individuals or groups,
+        Images that promote fraud or scam activities,
+        Harmful images related to weapons or dangerous objects,
+        Images containing personal identification information (PII) without consent,
+        Images depicting harmful stereotypes or derogatory portrayals of individuals or communities,
+        """
         neg_prompts += request.data['neg_prompts']
+        image_size = request.data['image_size']
+        if image_size == 'Square':
+            width = 512
+            height = 512
+        elif image_size == 'Landscape':
+            width = 854
+            height = 480
+        elif image_size == 'Portrait':
+            width = 480
+            height = 854
+        else:
+            width = 512
+            height = 512
 
         def DeforumAnimArgs():
 
@@ -90,7 +121,7 @@ class test(viewsets.ModelViewSet):
             use_mask_video = False #@param {type:"boolean"}
             video_mask_path ='/content/video_in.mp4'#@param {type:"string"}
 
-            #@markdown ####**Hybrid Video for 2D/3D Animation Mode:**
+            #@markdown ####**Hybrid Video for 2D/3D Animation Mode:*    *
             hybrid_generate_inputframes = False #@param {type:"boolean"}
             hybrid_use_first_frame_as_init_image = True #@param {type:"boolean"}
             hybrid_motion = "None" #@param ['None','Optical Flow','Perspective','Affine']
@@ -124,8 +155,8 @@ class test(viewsets.ModelViewSet):
         def DeforumArgs():
 
             #@markdown **Image Settings**
-            W = 512 #@param
-            H = 512 #@param
+            W = width #@param
+            H = height #@param
             W, H = map(lambda x: x - x % 64, (W, H))  # resize to integer multiple of 64
             bit_depth_output = 8 #@param [8, 16, 32] {type:"raw"}
 
