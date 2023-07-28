@@ -17,6 +17,7 @@ import subprocess, time, gc, os, sys
 
 from rest_framework import viewsets
 from django.http import JsonResponse
+from PIL import Image
 
 class test(viewsets.ModelViewSet):
     def list(self,request):
@@ -359,11 +360,54 @@ class test(viewsets.ModelViewSet):
 
         prefix_to_remove = "/home/user/Projects/deforum/"
         result_string = args.outdir.split(prefix_to_remove, 1)[-1]
+        path = result_string + '/' + filename
         data = {
-            "path": result_string + '/' + filename
+            "path": path
         }
+
+
+        print(path)
+
+
+
+        input_path = path
+        output_path = path
+        target_size = (1280, 720)
+
+        test.resize_image(input_path, output_path, target_size)
+
         
         return JsonResponse(data)
         
 
 
+    def resize_image(input_path, output_path, target_size):
+        # Open the input image
+        image = Image.open(input_path)
+
+        # Calculate the aspect ratios of the input and target sizes
+        aspect_ratio_input = image.width / image.height
+        aspect_ratio_target = target_size[0] / target_size[1]
+
+        # Calculate the new dimensions based on the target size while preserving the aspect ratio
+        if aspect_ratio_input > aspect_ratio_target:
+            new_height = target_size[1]
+            new_width = int(target_size[1] * aspect_ratio_input)
+        else:
+            new_width = target_size[0]
+            new_height = int(target_size[0] / aspect_ratio_input)
+
+        # Resize the image using the high-quality Lanczos interpolation method
+        resized_image = image.resize((new_width, new_height), Image.BICUBIC)
+
+        # Create a new blank image with the target size
+        output_image = Image.new("RGB", target_size)
+
+        # Calculate the position to paste the resized image, centering it on the canvas
+        paste_position = ((target_size[0] - new_width) // 2, (target_size[1] - new_height) // 2)
+
+        # Paste the resized image onto the blank image
+        output_image.paste(resized_image, paste_position)
+
+        # Save the output image
+        output_image.save(output_path)
