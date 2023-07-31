@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from web_ui.views.generate import test
+from web_ui.views.generate import Generate
 from rest_framework import routers
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -24,7 +24,7 @@ from django.conf import settings
 from web_ui.views.render import TemplateRender as render
 
 router = routers.DefaultRouter()
-router.register(r"", test, basename="test")
+router.register(r"", Generate, basename="Generate")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("submit", include(router.urls)),

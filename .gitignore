@@ -15,7 +15,7 @@ outputs/
 
 # Model files
 configs/
-models/
+*.ckpt
 
 # ffmpeg
 ffmpeg

@@ -111,3 +111,4 @@ clip
 djangorestframework
 django
 opencv-python
+numexpr

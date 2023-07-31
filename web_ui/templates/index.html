@@ -32,7 +32,8 @@
         // Handle form submission
         $("#imageUploadForm").submit(function (event) {
           event.preventDefault();
-      
+        const currentDomainWithPort = window.location.hostname + (window.location.port ? ":" + window.location.port : "");
+
           const formData = new FormData(this);
           const submitButton = document.querySelector('button[type="submit"]');
           const loader = document.getElementById("loader");
@@ -43,13 +44,13 @@
       
           $.ajax({
             type: "POST",
-            url: "http://127.0.0.1:8000/submit",
+            url:  "/submit",
             data: formData,
             processData: false,
             contentType: false,
             success: function (response) {
               // On success, display the returned image path
-              const imagePath = "http://127.0.0.1:8000/" + response.path;
+              const imagePath = response.path;
               console.log(imagePath)
               const imageContainer = document.getElementById("imageContainer");
               // Create an image element and set its source attribute

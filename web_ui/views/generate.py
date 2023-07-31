@@ -19,7 +19,7 @@ from rest_framework import viewsets
 from django.http import JsonResponse
 from PIL import Image
 from django.core.files.storage import FileSystemStorage
-class test(viewsets.ModelViewSet):        
+class Generate(viewsets.ModelViewSet):        
     def create(self, request):
         prompts = request.data['prompts']
         neg_prompts = """Pornography and explicit adult content,
@@ -44,6 +44,15 @@ class test(viewsets.ModelViewSet):
         neg_prompts += request.data['neg_prompts']
         image_size = request.data['image_size']
         use_init_state = False
+        animode = None
+        if 'mode' in request.data:
+            if request.data['mode'] == '2D':
+                animode = '2D'
+            elif request.data['mode'] == '3D':
+                animode = '3D'
+            else:
+                animode = None
+        
         init_image_path = "None"
         if image_size == 'Square':
             width = 512
@@ -68,7 +77,7 @@ class test(viewsets.ModelViewSet):
         def DeforumAnimArgs():
 
             #@markdown ####**Animation:**
-            animation_mode = None #@param ['None', '2D', '3D', 'Video Input', 'Interpolation'] {type:'string'}
+            animation_mode = animode #@param ['None', '2D', '3D', 'Video Input', 'Interpolation'] {type:'string'}
             max_frames = 100 #@param {type:"number"}
             border = 'replicate' #@param ['wrap', 'replicate'] {type:'string'}
 
@@ -113,7 +122,7 @@ class test(viewsets.ModelViewSet):
 
             #@markdown ####**3D Depth Warping:**
             use_depth_warping = True #@param {type:"boolean"}
-            midas_weight = 0.3#@param {type:"number"}
+            midas_weight = 0.6 #@param {type:"number"}
             near_plane = 200
             far_plane = 10000
             fov = 40#@param {type:"number"}
@@ -384,7 +393,7 @@ class test(viewsets.ModelViewSet):
         else:
             target_size = (640, 640)
 
-        test.resize_image(input_path, output_path, target_size)
+        Generate.resize_image(input_path, output_path, target_size)
         if os.path.exists('/home/user/Projects/deforum/' + init_image_path):
             print('Removing init image')
             print(init_image_path)
