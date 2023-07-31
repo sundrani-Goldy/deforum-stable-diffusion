@@ -1,0 +1,43 @@
+
+  body {
+    background-color: #f8f9fa;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  label {
+    font-weight: bold;
+  }
+  .form-control {
+    margin-bottom: 15px;
+  }
+  .btn-primary {
+    width: 100%;
+  }
+  #imageContainer {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .img-fluid {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Custom CSS to style the visited links */
+.visited-link {
+  background-color: rgba(255, 255, 255, 0.2); /* Background color for visited links */
+  color: white; /* Color for visited links */
+}

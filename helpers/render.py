@@ -119,7 +119,7 @@ def render_image_batch(root, args, cond_prompts, uncond_prompts):
             init_array.append(args.init_image)
         elif not os.path.isfile(args.init_image):
             if args.init_image[-1] != "/": # avoids path error by adding / to end if not there
-                args.init_image += "/" 
+                args.init_image += "" 
             for image in sorted(os.listdir(args.init_image)): # iterates dir and appends images to init_array
                 if image.split(".")[-1] in ("png", "jpg", "jpeg"):
                     init_array.append(args.init_image + image)

@@ -18,11 +18,8 @@ import subprocess, time, gc, os, sys
 from rest_framework import viewsets
 from django.http import JsonResponse
 from PIL import Image
-
-class test(viewsets.ModelViewSet):
-    def list(self,request):
-        return render(request,'webui.html')
-        
+from django.core.files.storage import FileSystemStorage
+class test(viewsets.ModelViewSet):        
     def create(self, request):
         prompts = request.data['prompts']
         neg_prompts = """Pornography and explicit adult content,
@@ -46,6 +43,8 @@ class test(viewsets.ModelViewSet):
         """
         neg_prompts += request.data['neg_prompts']
         image_size = request.data['image_size']
+        use_init_state = False
+        init_image_path = "None"
         if image_size == 'Square':
             width = 512
             height = 512
@@ -58,6 +57,13 @@ class test(viewsets.ModelViewSet):
         else:
             width = 512
             height = 512
+        if 'image' in request.FILES:            
+            uploaded_file = request.FILES['image']
+            fs = FileSystemStorage()
+            filename = fs.save(uploaded_file.name, uploaded_file)
+            uploaded_url = fs.url(filename)
+            use_init_state = True
+            init_image_path = uploaded_url
 
         def DeforumAnimArgs():
 
@@ -189,10 +195,10 @@ class test(viewsets.ModelViewSet):
             outdir = get_output_folder(settings.ROOT_VAR.output_path, batch_name)
 
             #@markdown **Init Settings**
-            use_init = False #@param {type:"boolean"}
-            strength = 0.65 #@param {type:"number"}
+            use_init = use_init_state #@param {type:"boolean"}
+            strength = 0.3 #@param {type:"number"}
             strength_0_no_init = True # Set the strength to 0 automatically when no init image is used
-            init_image = "https://cdn.pixabay.com/photo/2022/07/30/13/10/green-longhorn-beetle-7353749_1280.jpg" #@param {type:"string"}
+            init_image = '/home/user/Projects/deforum/' + init_image_path #@param {type:"string"}
             add_init_noise = False #@param {type:"boolean"}
             init_noise = 0.01 #@param
             # Whiter areas of the mask are areas that change more
@@ -366,17 +372,24 @@ class test(viewsets.ModelViewSet):
         }
 
 
-        print(path)
-
-
-
         input_path = path
-        output_path = path
-        target_size = (1280, 720)
+        output_path = path 
+
+        if image_size == 'Square':
+            target_size = (640, 640)
+        elif image_size == 'Landscape':
+            target_size = (1280, 720)
+        elif image_size == 'Portrait':
+            target_size = (720,1280)
+        else:
+            target_size = (640, 640)
 
         test.resize_image(input_path, output_path, target_size)
-
-        
+        if os.path.exists('/home/user/Projects/deforum/' + init_image_path):
+            print('Removing init image')
+            print(init_image_path)
+            os.remove('/home/user/Projects/deforum/' + init_image_path)
+            print('Removed init image')
         return JsonResponse(data)
         
 

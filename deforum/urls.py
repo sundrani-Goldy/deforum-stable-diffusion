@@ -16,19 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from web_ui.views import test
+from web_ui.views.generate import test
 from rest_framework import routers
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
-
+from web_ui.views.render import TemplateRender as render
 
 router = routers.DefaultRouter()
 router.register(r"", test, basename="test")
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("create/", include(router.urls)),
-    
+    path("submit", include(router.urls)),
+    path("", render.index, name="index"),
+    path("text2img", render.Text2Image, name="text2img"),
+    path("img2img", render.Image2Image, name="img2img"),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
