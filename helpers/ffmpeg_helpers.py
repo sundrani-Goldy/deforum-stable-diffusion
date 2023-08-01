@@ -53,7 +53,7 @@ def make_mp4_ffmpeg(ffmpeg_args, display_ffmpeg=False, debug=False):
         '-vf',
         f'fps={ffmpeg_args.ffmpeg_fps}',
         '-pix_fmt', 'yuv420p',
-        '-crf', '17',
+        '-crf', '17',  
         '-preset', 'veryfast',
         '-pattern_type', 'sequence',
         ffmpeg_args.ffmpeg_mp4_path

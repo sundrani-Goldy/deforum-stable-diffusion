@@ -19,6 +19,7 @@ from rest_framework import viewsets
 from django.http import JsonResponse
 from PIL import Image
 from django.core.files.storage import FileSystemStorage
+import json
 class Generate(viewsets.ModelViewSet):        
     def create(self, request):
         prompts = request.data['prompts']
@@ -45,7 +46,15 @@ class Generate(viewsets.ModelViewSet):
         image_size = request.data['image_size']
         use_init_state = False
         animode = None
+        skip_video_state = True
+        print(prompts,"prompts")
         if 'mode' in request.data:
+            dict_ = json.loads(prompts)
+            dict_ = {int(key): value for key, value in dict_.items()}
+            last_key = list(dict_.keys())[-1]
+            prompts = dict_
+            total_frames = last_key + 10
+            skip_video_state = False
             if request.data['mode'] == '2D':
                 animode = '2D'
             elif request.data['mode'] == '3D':
@@ -78,7 +87,7 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown ####**Animation:**
             animation_mode = animode #@param ['None', '2D', '3D', 'Video Input', 'Interpolation'] {type:'string'}
-            max_frames = 100 #@param {type:"number"}
+            max_frames = total_frames #@param {type:"number"}
             border = 'replicate' #@param ['wrap', 'replicate'] {type:'string'}
 
             #@markdown ####**Motion Parameters:**
@@ -122,7 +131,7 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown ####**3D Depth Warping:**
             use_depth_warping = True #@param {type:"boolean"}
-            midas_weight = 0.6 #@param {type:"number"}
+            midas_weight = 0.9 #@param {type:"number"}
             near_plane = 200
             far_plane = 10000
             fov = 40#@param {type:"number"}
@@ -178,7 +187,7 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown **Sampling Settings**
             seed = -1 #@param
-            sampler = 'euler_ancestral' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
+            sampler = 'ddim' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
             steps = 50 #@param
             scale = 7 #@param
             ddim_eta = 0.0 #@param
@@ -328,7 +337,7 @@ class Generate(viewsets.ModelViewSet):
             filename = render_image_batch(settings.ROOT_VAR, args, cond, uncond)
 
 
-        skip_video_for_run_all = True #@param {type: 'boolean'}
+        skip_video_for_run_all = skip_video_state #@param {type: 'boolean'}
         create_gif = False #@param {type: 'boolean'}
 
         if skip_video_for_run_all == True:
@@ -346,7 +355,7 @@ class Generate(viewsets.ModelViewSet):
                 ffmpeg_gif_path = "" #@param {type:"string"}
                 ffmpeg_extension = "png" #@param {type:"string"}
                 ffmpeg_maxframes = 200 #@param
-                ffmpeg_fps = 12 #@param
+                ffmpeg_fps = 10 #@param
 
                 # determine auto paths
                 if ffmpeg_mode == 'auto':

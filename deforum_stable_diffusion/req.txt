@@ -112,3 +112,4 @@ djangorestframework
 django
 opencv-python
 numexpr
+ffmpy

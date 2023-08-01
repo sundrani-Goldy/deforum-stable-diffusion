@@ -171,3 +171,16 @@ Deforum Stable Diffusion is a community-driven, open source project that is free
 Your support helps us cover the costs of hosting, development, and maintenance, and allows us to allocate more time and resources to improving Deforum Stable Diffusion. Thank you for your support!
 
 `this readme was written in collaboration with chat-gpt`
+
+
+
+
+
+<!-- connect colab with Drive -->
+
+<!-- ngrok setup -->
+from pyngrok import ngrok
+ngrok.kill()
+auth = ''
+ngrok.set_auth_token(auth)
+ngrok.connect(8000)

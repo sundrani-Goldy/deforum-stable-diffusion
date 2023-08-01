@@ -27,8 +27,47 @@
     
       <!-- jQuery (Optional, needed for AJAX) -->
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
       <script>
+        // Function to combine prompts into a JSON object
+        function combinePrompts() {
+          var prompts = {};
+          var inputs = document.querySelectorAll('[name="prompts"]');
+          for (let i = 0; i < inputs.length; i++) {
+            var promptValue = inputs[i].value.trim();
+            if (promptValue !== '') {
+              prompts[parseInt(i) * 10] = promptValue;
+            }
+          }
+          return JSON.stringify(prompts);
+        }
+  
+        // Add button click event handler
+        document.getElementById('addButton').addEventListener('click', function () {
+          var promptsContainer = document.getElementById('promptsContainer');
+          var existingInputs = promptsContainer.querySelectorAll('[name="prompts"]');
+          if (existingInputs.length < 5) {
+            var inputDiv = document.createElement('div');
+            inputDiv.classList.add('mb-3');
+            var label = document.createElement('label');
+            label.textContent = `Story ${existingInputs.length + 1} :`;
+            label.setAttribute('for', 'prompts');
+            label.classList.add('form-label');
+            var input = document.createElement('input');
+            input.setAttribute('type', 'text');
+            input.classList.add('form-control');
+            input.setAttribute('name', 'prompts');
+            input.setAttribute('required', 'true');
+            inputDiv.appendChild(label);
+            inputDiv.appendChild(input);
+            promptsContainer.appendChild(inputDiv);
+            if (existingInputs.length === 4) {
+              this.style.display = 'none';
+            }
+          }
+        });
+  
+
         // Handle form submission
         $("#imageUploadForm").submit(function (event) {
           event.preventDefault();
@@ -37,11 +76,22 @@
           const formData = new FormData(this);
           const submitButton = document.querySelector('button[type="submit"]');
           const loader = document.getElementById("loader");
-      
+  
           // Disable the submit button and show the loader
           submitButton.disabled = true;
           loader.style.display = "block";
-      
+
+          var combinedPrompts = combinePrompts();
+          // Do whatever you want with the combined prompts (e.g., send them to the server)
+          console.log(JSON.parse(combinedPrompts));
+          // Clear the form inputs after submission (optional)
+          var inputs = document.querySelectorAll('[name="prompts"]');
+          for (let i = 0; i < inputs.length; i++) {
+            inputs[i].value = '';
+          }
+          formData.set("prompts", combinedPrompts);
+
+
           $.ajax({
             type: "POST",
             url:  "/submit",
@@ -76,6 +126,8 @@
           });
         });
       </script>
+
+
     </body>
     
     </html>

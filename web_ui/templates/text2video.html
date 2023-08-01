@@ -1,34 +1,45 @@
-{% extends 'index.html' %}
-{% block title %}
-  Text2Image
-{% endblock %}
+  {% extends 'index.html' %}
+  {% block title %}
+    Text2Image
+  {% endblock %}
 
-{% block body %}
-{% load static %}
+  {% block body %}
+  {% load static %}
 
-  <div class="container mt-5">
-    <h1>Text To Video </h1>
-    <form id="imageUploadForm">
-      <div class="mb-3">
-        <label for="prompts" class="form-label">Enter the text you want to generate:</label>
-        <input type="text" class="form-control" id="prompts" name="prompts" required>
-      </div>
-      <div class="mb-3">
-        <label for="neg_prompts" class="form-label">Enter the things you don't want in the image:</label>
-        <input class="form-control" id="neg_prompt" name="neg_prompts"></input>
-      </div>
+    <div class="container mt-5">
+      <h1>Text To Video </h1>
+      <form id="imageUploadForm">
+        <div id="promptsContainer">
+          <div class="mb-3">
+            <label for="prompts" class="form-label">Story 1 :</label>
+            <input type="text" class="form-control" name="prompts" required>
+          </div>
+        </div>
+        <div>
+          <button type="button" id="addButton" class="btn btn-secondary">Add</button>
+        </div>
+        <div class="mb-3">
+          <label for="neg_prompts" class="form-label">Enter the things you don't want in the image:</label>
+          <input class="form-control" id="neg_prompt" name="neg_prompts"></input>
+      </div>  
       <div class="mb-3">
         <label for="mode">Select video mode</label><br>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="image_size" id="Square" value="Square" checked>
-          <label class="form-check-label" for="Square">
-            Square
+          <input class="form-check-input" type="radio" name="mode" id="2D" value="2D" checked>
+          <label class="form-check-label" for="2D">
+            2D
           </label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="image_size" id="Portrait" value="Portrait">
-          <label class="form-check-label" for="Portrait">
-            Portrait
+          <input class="form-check-input" type="radio" name="mode" id="3D" value="3D">
+          <label class="form-check-label" for="3D">
+            3D
+          </label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mode" id="Interpolation" value="Interpolation">
+          <label class="form-check-label" for="Interpolation">
+            Interpolation
           </label>
         </div>
       </div> 
@@ -52,21 +63,18 @@
             Landscape
           </label>
         </div>
-      </div> 
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-    <!-- Placeholder for displaying the image -->
-<div id="loader" style="display: none; text-align: center; margin-top: 20px;">
-  <div class="spinner-border text-primary" role="status">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      <!-- Placeholder for displaying the image -->
+      <div id="loader" style="display: none; text-align: center; margin-top: 20px;">
+        <div class="spinner-border text-primary" role="status">
+        </div>
+      </div>
 
-  </div>
-</div>
+      <div class="container mt-3" id="imageContainer">
+        <!-- Placeholder for displaying the image -->
+      </div>
+    </div>
 
-<div class="container mt-3" id="imageContainer">
-  <!-- Placeholder for displaying the image -->
-</div>
-  </div>
 
-  
-{% endblock %}
-  
+  {% endblock %}
