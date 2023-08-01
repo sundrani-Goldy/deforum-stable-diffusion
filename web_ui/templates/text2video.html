@@ -8,7 +8,7 @@
 
     <div class="container mt-5">
       <h1>Text To Video </h1>
-      <form id="imageUploadForm">
+      <form id="GenerativeForm">
         <div id="promptsContainer">
           <div class="mb-3">
             <label for="prompts" class="form-label">Story 1 :</label>
@@ -78,3 +78,115 @@
 
 
   {% endblock %}
+  {% block js %}
+  <script>
+    // Function to combine prompts into a JSON object
+    function combinePrompts() {
+      var prompts = {};
+      var inputs = document.querySelectorAll('[name="prompts"]');
+      for (let i = 0; i < inputs.length; i++) {
+        var promptValue = inputs[i].value.trim();
+        if (promptValue !== '') {
+          prompts[parseInt(i) * 20] = promptValue;
+        }
+      }
+      console.log(prompts);
+      return JSON.stringify(prompts);
+    }
+
+    document.getElementById('addButton').addEventListener('click', function () {
+  var promptsContainer = document.getElementById('promptsContainer');
+  var existingInputs = promptsContainer.querySelectorAll('[name="prompts"]');
+  if (existingInputs.length < 5) {
+    var inputDiv = document.createElement('div');
+    inputDiv.classList.add('mb-3', 'prompt-wrapper'); // Add the prompt-wrapper class to the inputDiv
+    var label = document.createElement('label');
+    label.textContent = `Story ${existingInputs.length + 1} :`;
+    label.setAttribute('for', 'prompts');
+    label.classList.add('form-label');
+    var input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    input.classList.add('form-control');
+    input.setAttribute('name', 'prompts');
+    input.setAttribute('required', 'true');
+    inputDiv.appendChild(label);
+    inputDiv.appendChild(input);
+    deleteButton = document.createElement('button');
+    deleteButton.classList.add('btn', 'btn-danger', 'mt-2');
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', function () {
+      this.parentNode.remove();
+      var remainingInputs = promptsContainer.querySelectorAll('[name="prompts"]');
+      if (remainingInputs.length < 5) {
+        document.getElementById('addButton').style.display = 'block';
+      }
+    }); 
+    inputDiv.appendChild(deleteButton);
+    promptsContainer.appendChild(inputDiv);
+    if (existingInputs.length === 4) {
+      this.style.display = 'none';
+    }
+  }
+});
+
+
+    // Handle form submission
+    $("#GenerativeForm").submit(function (event) {
+      event.preventDefault();
+      const currentDomainWithPort = window.location.hostname + (window.location.port ? ":" + window.location.port : "");
+
+      const formData = new FormData(this);
+      const submitButton = document.querySelector('button[type="submit"]');
+      const loader = document.getElementById("loader");
+
+      // Disable the submit button and show the loader
+      submitButton.disabled = true;
+      loader.style.display = "block";
+
+      var combinedPrompts = combinePrompts();
+      // Do whatever you want with the combined prompts (e.g., send them to the server)
+      console.log(JSON.parse(combinedPrompts));
+      // Clear the form inputs after submission (optional)
+      var inputs = document.querySelectorAll('[name="prompts"]');
+      for (let i = 0; i < inputs.length; i++) {
+        inputs[i].value = '';
+      }
+      formData.set("prompts", combinedPrompts);
+
+      $.ajax({
+        type: "POST",
+        url:  "/submit",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          // On success, display the returned video path
+          const videoPath = response.path;
+          console.log(videoPath);
+          const videoContainer = document.getElementById("imageContainer");
+          // Create a video element and set its source attribute
+          const videoElement = document.createElement("video");
+          videoElement.src = videoPath;
+          videoElement.autoplay = true; // Autoplay the video
+          videoElement.loop = true; // Enable looping
+          videoElement.controls = true; // Add controls for video playback
+          videoElement.className = "img-fluid"; // To make the video responsive using Bootstrap
+          // Clear previous content and append the new video element
+          videoContainer.innerHTML = "";
+          videoContainer.appendChild(videoElement);
+
+          // Hide the loader and enable the submit button
+          loader.style.display = "none";
+          submitButton.disabled = false;
+        },
+        error: function (error) {
+          console.error("Error:", error);
+
+          // Hide the loader and enable the submit button
+          loader.style.display = "none";
+          submitButton.disabled = false;
+        },
+      });
+    });
+  </script>
+{% endblock %}

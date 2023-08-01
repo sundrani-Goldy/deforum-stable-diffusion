@@ -47,18 +47,20 @@ class Generate(viewsets.ModelViewSet):
         use_init_state = False
         animode = None
         skip_video_state = True
-        print(prompts,"prompts")
+        total_frames = 20
         if 'mode' in request.data:
             dict_ = json.loads(prompts)
             dict_ = {int(key): value for key, value in dict_.items()}
             last_key = list(dict_.keys())[-1]
             prompts = dict_
-            total_frames = last_key + 10
+            total_frames = last_key + 20
             skip_video_state = False
             if request.data['mode'] == '2D':
                 animode = '2D'
             elif request.data['mode'] == '3D':
                 animode = '3D'
+            elif request.data['mode'] == 'Interpolation':
+                animode = 'Interpolation'
             else:
                 animode = None
         
@@ -162,7 +164,7 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown ####**Interpolation:**
             interpolate_key_frames = False #@param {type:"boolean"}
-            interpolate_x_frames = 20 #@param {type:"number"}
+            interpolate_x_frames = total_frames #@param {type:"number"}
             
             #@markdown ####**Resume Animation:**
             resume_from_timestring = False #@param {type:"boolean"}
@@ -382,9 +384,14 @@ class Generate(viewsets.ModelViewSet):
             from google.colab import runtime
             runtime.unassign()
 
+
         prefix_to_remove = "/home/user/Projects/deforum/"
-        result_string = args.outdir.split(prefix_to_remove, 1)[-1]
-        path = result_string + '/' + filename
+        if skip_video_state == False:
+            filename = ffmpeg_args.ffmpeg_mp4_path
+            path = filename.split(prefix_to_remove, 1)[-1]
+        else:
+            result_string = args.outdir.split(prefix_to_remove, 1)[-1]
+            path = result_string + '/' + filename
         data = {
             "path": path
         }
@@ -401,13 +408,13 @@ class Generate(viewsets.ModelViewSet):
             target_size = (720,1280)
         else:
             target_size = (640, 640)
-
-        Generate.resize_image(input_path, output_path, target_size)
-        if os.path.exists('/home/user/Projects/deforum/' + init_image_path):
-            print('Removing init image')
-            print(init_image_path)
-            os.remove('/home/user/Projects/deforum/' + init_image_path)
-            print('Removed init image')
+        if skip_video_state == True:
+            Generate.resize_image(input_path, output_path, target_size)
+            if os.path.exists('/home/user/Projects/deforum/' + init_image_path):
+                print('Removing init image')
+                print(init_image_path)
+                os.remove('/home/user/Projects/deforum/' + init_image_path)
+                print('Removed init image')
         return JsonResponse(data)
         
 

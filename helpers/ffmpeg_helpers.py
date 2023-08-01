@@ -42,7 +42,7 @@ def make_mp4_ffmpeg(ffmpeg_args, display_ffmpeg=False, debug=False):
 
     # make mp4
     cmd = [
-        ffmpeg_path,
+        '/usr/bin/ffmpeg',
         '-y',
         '-vcodec', "png",
         '-r', str(ffmpeg_args.ffmpeg_fps),
