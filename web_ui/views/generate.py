@@ -89,7 +89,7 @@ class Generate(viewsets.ModelViewSet):
             uploaded_url = fs.url(input_file_name)
             use_init_state = True
             if drive_mounted:
-                init_image_path = '/content/drive/MyDrive/deforum/' + uploaded_url
+                init_image_path = '/content/drive/MyDrive/deforum-stable-diffusion-ui/' + uploaded_url
             else:
                 init_image_path = '/home/user/Projects/deforum/' + uploaded_url
         if 'video' in request.FILES:     
@@ -100,7 +100,7 @@ class Generate(viewsets.ModelViewSet):
             input_file_name = fs.save(uploaded_file.name, uploaded_file)
             uploaded_url = fs.url(input_file_name)
             if drive_mounted:
-                video_path = '/content/drive/MyDrive/deforum/' + uploaded_url
+                video_path = '/content/drive/MyDrive/deforum-stable-diffusion-ui/' + uploaded_url
             else:
                 video_path = '/home/user/Projects/deforum/' + uploaded_url
             fps = Generate.get_video_fps(video_path)
@@ -404,7 +404,7 @@ class Generate(viewsets.ModelViewSet):
             runtime.unassign()
 
         if drive_mounted:
-            prefix_to_remove = "/content/drive/MyDrive/deforum/"
+            prefix_to_remove = "/content/drive/MyDrive/deforum-stable-diffusion-ui/"
         else:
             prefix_to_remove = "/home/user/Projects/deforum/"
         if skip_video_state == False:
