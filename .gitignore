@@ -15,6 +15,7 @@ outputs/
 
 # Model files
 *.ckpt
+*.pt
 
 # ffmpeg
 ffmpeg

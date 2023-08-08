@@ -32,6 +32,7 @@ urlpatterns = [
     path("text2img", render.Text2Image, name="text2img"),
     path("img2img", render.Image2Image, name="img2img"),
     path("text2video", render.Text2Video, name="text2video"),
+    path("video2video", render.Video2Video, name="video2video"),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

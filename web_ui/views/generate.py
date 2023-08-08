@@ -20,6 +20,9 @@ from django.http import JsonResponse
 from PIL import Image
 from django.core.files.storage import FileSystemStorage
 import json
+import cv2
+import os
+drive_mounted = os.path.exists('/content/drive')
 class Generate(viewsets.ModelViewSet):        
     def create(self, request):
         prompts = request.data['prompts']
@@ -48,6 +51,8 @@ class Generate(viewsets.ModelViewSet):
         animode = None
         skip_video_state = True
         total_frames = 20
+        video_path = None
+        fps = 10
         if 'mode' in request.data:
             dict_ = json.loads(prompts)
             dict_ = {int(key): value for key, value in dict_.items()}
@@ -80,11 +85,25 @@ class Generate(viewsets.ModelViewSet):
         if 'image' in request.FILES:            
             uploaded_file = request.FILES['image']
             fs = FileSystemStorage()
-            filename = fs.save(uploaded_file.name, uploaded_file)
-            uploaded_url = fs.url(filename)
+            input_file_name = fs.save(uploaded_file.name, uploaded_file)
+            uploaded_url = fs.url(input_file_name)
             use_init_state = True
-            init_image_path = uploaded_url
-
+            if drive_mounted:
+                init_image_path = '/content/drive/MyDrive/deforum/' + uploaded_url
+            else:
+                init_image_path = '/home/user/Projects/deforum/' + uploaded_url
+        if 'video' in request.FILES:     
+            skip_video_state = False
+            animode = 'Video Input'
+            uploaded_file = request.FILES['video']
+            fs = FileSystemStorage()
+            input_file_name = fs.save(uploaded_file.name, uploaded_file)
+            uploaded_url = fs.url(input_file_name)
+            if drive_mounted:
+                video_path = '/content/drive/MyDrive/deforum/' + uploaded_url
+            else:
+                video_path = '/home/user/Projects/deforum/' + uploaded_url
+            fps = Generate.get_video_fps(video_path)
         def DeforumAnimArgs():
 
             #@markdown ####**Animation:**
@@ -142,18 +161,18 @@ class Generate(viewsets.ModelViewSet):
             save_depth_maps = False #@param {type:"boolean"}
 
             #@markdown ####**Video Input:**
-            video_init_path ='/content/video_in.mp4'#@param {type:"string"}
-            extract_nth_frame = 1#@param {type:"number"}
+            video_init_path = video_path #@param {type:"string"}
+            extract_nth_frame = 1 #@param {type:"number"}
             overwrite_extracted_frames = True #@param {type:"boolean"}
             use_mask_video = False #@param {type:"boolean"}
-            video_mask_path ='/content/video_in.mp4'#@param {type:"string"}
+            video_mask_path = video_path#@param {type:"string"}
 
             #@markdown ####**Hybrid Video for 2D/3D Animation Mode:*    *
             hybrid_generate_inputframes = False #@param {type:"boolean"}
-            hybrid_use_first_frame_as_init_image = True #@param {type:"boolean"}
-            hybrid_motion = "None" #@param ['None','Optical Flow','Perspective','Affine']
-            hybrid_motion_use_prev_img = False #@param {type:"boolean"}
-            hybrid_flow_method = "DIS Medium" #@param ['DenseRLOF','DIS Medium','Farneback','SF']
+            hybrid_use_first_frame_as_init_image = False #@param {type:"boolean"}
+            hybrid_motion = "Optical Flow" #@param ['None','Optical Flow','Perspective','Affine']
+            hybrid_motion_use_prev_img = True #@param {type:"boolean"}
+            hybrid_flow_method = "RAFT" #@param ['DenseRLOF','DIS Medium','Farneback','SF']
             hybrid_composite = False #@param {type:"boolean"}
             hybrid_comp_mask_type = "None" #@param ['None', 'Depth', 'Video Depth', 'Blend', 'Difference']
             hybrid_comp_mask_inverse = False #@param {type:"boolean"}
@@ -163,7 +182,7 @@ class Generate(viewsets.ModelViewSet):
             hybrid_use_video_as_mse_image = False #@param {type:"boolean"}
 
             #@markdown ####**Interpolation:**
-            interpolate_key_frames = False #@param {type:"boolean"}
+            interpolate_key_frames = True #@param {type:"boolean"}
             interpolate_x_frames = total_frames #@param {type:"number"}
             
             #@markdown ####**Resume Animation:**
@@ -190,8 +209,8 @@ class Generate(viewsets.ModelViewSet):
             #@markdown **Sampling Settings**
             seed = -1 #@param
             sampler = 'ddim' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
-            steps = 50 #@param
-            scale = 7 #@param
+            steps = 100 #@param
+            scale = 20 #@param
             ddim_eta = 0.0 #@param
             dynamic_threshold = None
             static_threshold = None   
@@ -208,7 +227,7 @@ class Generate(viewsets.ModelViewSet):
             n_samples = 1 #@param
             batch_name = "StableFun" #@param {type:"string"}
             filename_format = "{timestring}_{index}_{prompt}.png" #@param ["{timestring}_{index}_{seed}.png","{timestring}_{index}_{prompt}.png"]
-            seed_behavior = "iter" #@param ["iter","fixed","random","ladder","alternate"]
+            seed_behavior = "fixed" #@param ["iter","fixed","random","ladder","alternate"]
             seed_iter_N = 1 #@param {type:'integer'}
             make_grid = False #@param {type:"boolean"}
             grid_rows = 2 #@param 
@@ -216,9 +235,9 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown **Init Settings**
             use_init = use_init_state #@param {type:"boolean"}
-            strength = 0.3 #@param {type:"number"}
+            strength = 0.6   #@param {type:"number"}'
             strength_0_no_init = True # Set the strength to 0 automatically when no init image is used
-            init_image = '/home/user/Projects/deforum/' + init_image_path #@param {type:"string"}
+            init_image = init_image_path #@param {type:"string"}
             add_init_noise = False #@param {type:"boolean"}
             init_noise = 0.01 #@param
             # Whiter areas of the mask are areas that change more
@@ -336,7 +355,7 @@ class Generate(viewsets.ModelViewSet):
         elif anim_args.animation_mode == 'Interpolation':
             render_interpolation(settings.ROOT_VAR, anim_args, args, cond, uncond)
         else:
-            filename = render_image_batch(settings.ROOT_VAR, args, cond, uncond)
+            input_file_name = render_image_batch(settings.ROOT_VAR, args, cond, uncond)
 
 
         skip_video_for_run_all = skip_video_state #@param {type: 'boolean'}
@@ -357,7 +376,7 @@ class Generate(viewsets.ModelViewSet):
                 ffmpeg_gif_path = "" #@param {type:"string"}
                 ffmpeg_extension = "png" #@param {type:"string"}
                 ffmpeg_maxframes = 200 #@param
-                ffmpeg_fps = 10 #@param
+                ffmpeg_fps = fps #@param
 
                 # determine auto paths
                 if ffmpeg_mode == 'auto':
@@ -384,14 +403,16 @@ class Generate(viewsets.ModelViewSet):
             from google.colab import runtime
             runtime.unassign()
 
-
-        prefix_to_remove = "/home/user/Projects/deforum/"
+        if drive_mounted:
+            prefix_to_remove = "/content/drive/MyDrive/deforum/"
+        else:
+            prefix_to_remove = "/home/user/Projects/deforum/"
         if skip_video_state == False:
-            filename = ffmpeg_args.ffmpeg_mp4_path
-            path = filename.split(prefix_to_remove, 1)[-1]
+            input_file_name = ffmpeg_args.ffmpeg_mp4_path   
+            path = input_file_name.split(prefix_to_remove, 1)[-1]
         else:
             result_string = args.outdir.split(prefix_to_remove, 1)[-1]
-            path = result_string + '/' + filename
+            path = result_string + '/' + input_file_name
         data = {
             "path": path
         }
@@ -408,13 +429,13 @@ class Generate(viewsets.ModelViewSet):
             target_size = (720,1280)
         else:
             target_size = (640, 640)
-        if skip_video_state == True:
+        if skip_video_state == True and video_path == None:
             Generate.resize_image(input_path, output_path, target_size)
-            if os.path.exists('/home/user/Projects/deforum/' + init_image_path):
-                print('Removing init image')
-                print(init_image_path)
-                os.remove('/home/user/Projects/deforum/' + init_image_path)
-                print('Removed init image')
+            if os.path.exists(init_image_path):
+                os.remove(init_image_path)
+        if skip_video_state == False and video_path != None:
+            if os.path.exists(video_path):
+                os.remove(video_path)
         return JsonResponse(data)
         
 
@@ -449,3 +470,19 @@ class Generate(viewsets.ModelViewSet):
 
         # Save the output image
         output_image.save(output_path)
+
+    
+
+    def get_video_fps(video_path):
+        try:
+            cap = cv2.VideoCapture(video_path)
+            if not cap.isOpened():
+                raise ValueError("Error opening video file.")
+
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            cap.release()
+            return fps
+
+        except Exception as e:
+            print("Error:", e)
+            return None

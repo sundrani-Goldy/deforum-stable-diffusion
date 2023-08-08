@@ -1,6 +1,6 @@
   {% extends 'index.html' %}
   {% block title %}
-    Text2Image
+    Text2Video
   {% endblock %}
 
   {% block body %}
@@ -85,7 +85,7 @@
       var prompts = {};
       var inputs = document.querySelectorAll('[name="prompts"]');
       for (let i = 0; i < inputs.length; i++) {
-        var promptValue = inputs[i].value.trim();
+        var promptValue = inputs[i].value.trim(); 
         if (promptValue !== '') {
           prompts[parseInt(i) * 20] = promptValue;
         }
@@ -93,10 +93,37 @@
       console.log(prompts);
       return JSON.stringify(prompts);
     }
+    $(document).ready(function() {
+    $('input[type=radio][name="mode"]').on('change', function() {
+        var radio =  $('input[name="mode"]:checked').val();
+    if(radio=='Interpolation'){
+      var promptsContainer = document.getElementById('promptsContainer');
+      var existingInputs = promptsContainer.querySelectorAll('[name="prompts"]');
+      if (existingInputs.length > 1) {
+        for (let i = 1; i < existingInputs.length; i++) {
+          existingInputs[i].parentNode.remove();
+        }
+      }     document.getElementById('addButton').style.display = 'block';
+            document.getElementById('addButton').click();
+    }
+    else{
+      document.getElementById('addButton').style.display = 'block'; 
+      var promptsContainer = document.getElementById('promptsContainer');
+      var existingInputs = promptsContainer.querySelectorAll('[name="prompts"]');
+      if (existingInputs.length > 1) {
+        for (let i = 1; i < existingInputs.length; i++) {
+          existingInputs[i].parentNode.remove();
+        }
+      }
+    }
+    });
+});
 
-    document.getElementById('addButton').addEventListener('click', function () {
+
+  document.getElementById('addButton').addEventListener('click', function () {
   var promptsContainer = document.getElementById('promptsContainer');
   var existingInputs = promptsContainer.querySelectorAll('[name="prompts"]');
+
   if (existingInputs.length < 5) {
     var inputDiv = document.createElement('div');
     inputDiv.classList.add('mb-3', 'prompt-wrapper'); // Add the prompt-wrapper class to the inputDiv
@@ -113,6 +140,7 @@
     inputDiv.appendChild(input);
     deleteButton = document.createElement('button');
     deleteButton.classList.add('btn', 'btn-danger', 'mt-2');
+    deleteButton.id = 'deleteButton';
     deleteButton.textContent = 'Delete';
     deleteButton.addEventListener('click', function () {
       this.parentNode.remove();
@@ -121,10 +149,21 @@
         document.getElementById('addButton').style.display = 'block';
       }
     }); 
-    inputDiv.appendChild(deleteButton);
+    var radio =  $('input[name="mode"]:checked').val();
+    console.log(radio);
+    if(radio=='Interpolation' && existingInputs.length==1) {
+      
+    }
+    else{
+      inputDiv.appendChild(deleteButton);
+    }
+    
     promptsContainer.appendChild(inputDiv);
     if (existingInputs.length === 4) {
       this.style.display = 'none';
+    }
+    else{
+      this.style.display = 'block';
     }
   }
 });

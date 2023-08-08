@@ -9,3 +9,5 @@ class TemplateRender:
         return render(request,"img2img.html")
     def Text2Video(request):
         return render(request,"text2video.html")
+    def Video2Video(request):
+        return render(request,"video2video.html")
