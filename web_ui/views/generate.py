@@ -164,14 +164,14 @@ class Generate(viewsets.ModelViewSet):
             video_init_path = video_path #@param {type:"string"}
             extract_nth_frame = 1 #@param {type:"number"}
             overwrite_extracted_frames = True #@param {type:"boolean"}
-            use_mask_video = False #@param {type:"boolean"}
+            use_mask_video = True #@param {type:"boolean"}
             video_mask_path = video_path#@param {type:"string"}
 
             #@markdown ####**Hybrid Video for 2D/3D Animation Mode:*    *
             hybrid_generate_inputframes = False #@param {type:"boolean"}
             hybrid_use_first_frame_as_init_image = False #@param {type:"boolean"}
-            hybrid_motion = "Optical Flow" #@param ['None','Optical Flow','Perspective','Affine']
-            hybrid_motion_use_prev_img = True #@param {type:"boolean"}
+            hybrid_motion = "None" #@param ['None','Optical Flow','Perspective','Affine']
+            hybrid_motion_use_prev_img = False #@param {type:"boolean"}
             hybrid_flow_method = "RAFT" #@param ['DenseRLOF','DIS Medium','Farneback','SF']
             hybrid_composite = False #@param {type:"boolean"}
             hybrid_comp_mask_type = "None" #@param ['None', 'Depth', 'Video Depth', 'Blend', 'Difference']
@@ -209,8 +209,8 @@ class Generate(viewsets.ModelViewSet):
             #@markdown **Sampling Settings**
             seed = -1 #@param
             sampler = 'ddim' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
-            steps = 100 #@param
-            scale = 20 #@param
+            steps = 50 #@param
+            scale = 10 #@param
             ddim_eta = 0.0 #@param
             dynamic_threshold = None
             static_threshold = None   
@@ -227,7 +227,7 @@ class Generate(viewsets.ModelViewSet):
             n_samples = 1 #@param
             batch_name = "StableFun" #@param {type:"string"}
             filename_format = "{timestring}_{index}_{prompt}.png" #@param ["{timestring}_{index}_{seed}.png","{timestring}_{index}_{prompt}.png"]
-            seed_behavior = "fixed" #@param ["iter","fixed","random","ladder","alternate"]
+            seed_behavior = "iter" #@param ["iter","fixed","random","ladder","alternate"]
             seed_iter_N = 1 #@param {type:'integer'}
             make_grid = False #@param {type:"boolean"}
             grid_rows = 2 #@param 
