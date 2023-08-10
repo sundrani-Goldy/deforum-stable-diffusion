@@ -113,8 +113,8 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown ####**Motion Parameters:**
             angle = "0:(0)"#@param {type:"string"}
-            zoom = "0:(1.04)"#@param {type:"string"}
-            translation_x = "0:(10*sin(2*3.14*t/10))"#@param {type:"string"}
+            zoom = "0:(1)"#@param {type:"string"}
+            translation_x = "0:(0)"#@param {type:"string"}
             translation_y = "0:(0)"#@param {type:"string"}
             translation_z = "0:(10)"#@param {type:"string"}
             rotation_3d_x = "0:(0)"#@param {type:"string"}
@@ -201,15 +201,15 @@ class Generate(viewsets.ModelViewSet):
         def DeforumArgs():
 
             #@markdown **Image Settings**
-            W = width #@param
-            H = height #@param
+            W = 1920 #@param
+            H = 1080 #@param
             W, H = map(lambda x: x - x % 64, (W, H))  # resize to integer multiple of 64
             bit_depth_output = 8 #@param [8, 16, 32] {type:"raw"}
 
             #@markdown **Sampling Settings**
             seed = -1 #@param
             sampler = 'ddim' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
-            steps = 50 #@param
+            steps = 200 #@param
             scale = 10 #@param
             ddim_eta = 0.0 #@param
             dynamic_threshold = None
@@ -235,10 +235,10 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown **Init Settings**
             use_init = use_init_state #@param {type:"boolean"}
-            strength = 0.6   #@param {type:"number"}'
+            strength = 0.5   #@param {type:"number"}'
             strength_0_no_init = True # Set the strength to 0 automatically when no init image is used
             init_image = init_image_path #@param {type:"string"}
-            add_init_noise = False #@param {type:"boolean"}
+            add_init_noise = True #@param {type:"boolean"}
             init_noise = 0.01 #@param
             # Whiter areas of the mask are areas that change more
             use_mask = False #@param {type:"boolean"}
