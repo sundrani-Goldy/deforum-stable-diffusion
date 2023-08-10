@@ -74,11 +74,11 @@ class Generate(viewsets.ModelViewSet):
             width = 512
             height = 512
         elif image_size == 'Landscape':
-            width = 854
-            height = 480
+            width = 1024
+            height = 1024
         elif image_size == 'Portrait':
-            width = 480
-            height = 854
+            width = 1024
+            height = 720
         else:
             width = 512
             height = 512
@@ -201,8 +201,8 @@ class Generate(viewsets.ModelViewSet):
         def DeforumArgs():
 
             #@markdown **Image Settings**
-            W = 1920 #@param
-            H = 1080 #@param
+            W = width #@param
+            H = height #@param
             W, H = map(lambda x: x - x % 64, (W, H))  # resize to integer multiple of 64
             bit_depth_output = 8 #@param [8, 16, 32] {type:"raw"}
 
