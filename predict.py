@@ -6,13 +6,41 @@ import gc
 import sys
 
 import torch
-import torch.nn as nn
-import torch.distributed as dist
 import random
 from collections import OrderedDict
 from types import SimpleNamespace
 from cog import BasePredictor, Input, Path
 from omegaconf import OmegaConf
+
+sys.path.insert(0, "src")
+import clip
+
+from ldm.util import instantiate_from_config
+from helpers.render import (
+    render_animation,
+    render_input_video,
+    render_image_batch,
+    render_interpolation,
+)
+from helpers.model_load import (
+    make_linear_decode,
+)
+from helpers.aesthetics import load_aesthetics_model
+from helpers.prompts import Prompts
+import os
+import shutil
+import subprocess
+import time
+import gc
+import sys
+
+import torch
+import random
+from collections import OrderedDict
+from types import SimpleNamespace
+from cog import BasePredictor, Input, Path
+from omegaconf import OmegaConf
+import torch.nn as nn
 
 sys.path.insert(0, "src")
 import clip
@@ -43,16 +71,14 @@ class Predictor(BasePredictor):
         default_model_ckpt_path = os.path.join(MODEL_CACHE, self.default_ckpt)
         local_config = OmegaConf.load(default_model_ckpt_config_path)
 
+        # Load the model here
         self.default_model = load_model_from_config(
             local_config, default_model_ckpt_path, map_location="cuda"
-        )        # Check if there are multiple GPUs and use DataParallel if available
-        if torch.cuda.device_count() > 1:
-            print("Using", torch.cuda.device_count(), "GPUs!")
-            self.default_model = nn.parallel.DistributedDataParallel(self.default_model)
-#
+        )
+        # Wrap the model with DataParallel
+        self.default_model = nn.DataParallel(self.default_model)
         self.device = "cuda"
         self.default_model = self.default_model.to(self.device)
-
     def predict(
         self,
         model_checkpoint: str = Input(
