@@ -40,6 +40,8 @@ def setup_environment():
 setup_environment()
 
 import torch
+
+
 import random
 import clip
 from IPython import display
