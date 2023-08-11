@@ -40,8 +40,8 @@ def setup_environment():
 setup_environment()
 
 import torch
-
-
+import torch.nn as nn
+import torch.distributed as dist
 import random
 import clip
 from IPython import display
@@ -71,13 +71,24 @@ settings.ROOT_VAR.models_path, settings.ROOT_VAR.output_path = get_model_output_
 def ModelSetup():
     map_location = "cuda" #@param ["cpu", "cuda"]
     model_config = "v1-inference.yaml" #@param ["custom","v2-inference.yaml","v2-inference-v.yaml","v1-inference.yaml"]
-    model_checkpoint =  "Protogen_V2.2.ckpt" #@param ["custom","v2-1_768-ema-pruned.ckpt","v2-1_512-ema-pruned.ckpt","768-v-ema.ckpt","512-base-ema.ckpt","Protogen_V2.2.ckpt","v1-5-pruned.ckpt","v1-5-pruned-emaonly.ckpt","sd-v1-4-full-ema.ckpt","sd-v1-4.ckpt","sd-v1-3-full-ema.ckpt","sd-v1-3.ckpt","sd-v1-2-full-ema.ckpt","sd-v1-2.ckpt","sd-v1-1-full-ema.ckpt","sd-v1-1.ckpt", "robo-diffusion-v1.ckpt","wd-v1-3-float16.ckpt"]
+    model_checkpoint = "Protogen_V2.2.ckpt" #@param ["custom","v2-1_768-ema-pruned.ckpt","v2-1_512-ema-pruned.ckpt","768-v-ema.ckpt","512-base-ema.ckpt","Protogen_V2.2.ckpt","v1-5-pruned.ckpt","v1-5-pruned-emaonly.ckpt","sd-v1-4-full-ema.ckpt","sd-v1-4.ckpt","sd-v1-3-full-ema.ckpt","sd-v1-3.ckpt","sd-v1-2-full-ema.ckpt","sd-v1-2.ckpt","sd-v1-1-full-ema.ckpt","sd-v1-1.ckpt", "robo-diffusion-v1.ckpt","wd-v1-3-float16.ckpt"]
     custom_config_path = "" #@param {type:"string"}
     custom_checkpoint_path = "" #@param {type:"string"}
+
+    # Load the model
+    model, device = load_model(locals(), load_on_run_all=True, check_sha256=True, map_location=map_location)
+
+    # Check if there are multiple GPUs and use DataParallel if available
+    if torch.cuda.device_count() > 1:
+        print("Using", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
+
+    # Move the model to the appropriate device
+    model = model.to(device)
+
     return locals()
 
-settings.ROOT_VAR.__dict__.update(ModelSetup())
-settings.ROOT_VAR.model, settings.ROOT_VAR.device = load_model(settings.ROOT_VAR, load_on_run_all=True, check_sha256=True, map_location=settings.ROOT_VAR.map_location)
-
-
+# Update ROOT_VAR with the modified ModelSetup
+settings.ROOT_VAR = SimpleNamespace(**ModelSetup())
+settings.ROOT_VAR.models_path, settings.ROOT_VAR.output_path = get_model_output_paths(settings.ROOT_VAR)
 
