@@ -3,6 +3,11 @@ import os
 
 # Related third-party imports
 import torch
+import torch.nn as nn
+from torchvision.transforms import ToTensor
+from torch.utils.data import DataLoader
+from helpers.render import render_image_batch
+from deforum import settings
 import numpy as np
 from PIL import Image
 import torchvision.transforms.functional as TF
@@ -300,4 +305,28 @@ def generate(args, root, frame=0, return_latent=False, return_sample=False, retu
                         x_sample = 255.**exponent_for_rearrange * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
                         image = uint_number(x_sample, args.bit_depth_output)
                         results.append(image)
+    # Wrap the model with DataParallel if multiple GPUs are available
+    if torch.cuda.device_count() > 1:
+        print("Using", torch.cuda.device_count(), "GPUs!")
+        settings.ROOT_VAR.model = nn.DataParallel(settings.ROOT_VAR.model)
+
+    # Move the model to the selected device
+    settings.ROOT_VAR.model.to(settings.ROOT_VAR.device)
+
+    # Create a DataLoader for your input data (assuming you have some)
+    input_data = ...  # Load your input data here
+    data_loader = DataLoader(input_data, batch_size=batch_size, shuffle=True)
+
+    # Inference loop
+    settings.ROOT_VAR.model.eval()  # Set the model to evaluation mode
+    with torch.no_grad():
+        for batch in data_loader:
+            inputs = batch.to(settings.ROOT_VAR.device)
+
+            # Perform inference using the wrapped model
+            outputs = settings.ROOT_VAR.model(inputs)
+
+            # Assuming render_image_batch is used for visualization
+            rendered_images = render_image_batch(outputs, ...)
+
     return results
