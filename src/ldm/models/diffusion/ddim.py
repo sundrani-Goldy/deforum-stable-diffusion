@@ -11,13 +11,7 @@ class DDIMSampler(object):
     def __init__(self, model, schedule="linear", **kwargs):
         super().__init__()
         self.model = model
-        #
         self.ddpm_num_timesteps = model.num_timesteps
-        # Access num_timesteps attribute
-        if hasattr(settings.ROOT_VAR.model, 'module'):
-            num_timesteps = settings.ROOT_VAR.model.module.num_timesteps
-        else:
-            num_timesteps = settings.ROOT_VAR.model.num_timesteps
         self.schedule = schedule
 
     def register_buffer(self, name, attr):
