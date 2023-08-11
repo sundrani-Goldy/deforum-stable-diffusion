@@ -49,7 +49,7 @@ class Predictor(BasePredictor):
         if torch.cuda.device_count() > 1:
             print("Using", torch.cuda.device_count(), "GPUs!")
             self.default_model = nn.parallel.DistributedDataParallel(self.default_model)
-
+#
         self.device = "cuda"
         self.default_model = self.default_model.to(self.device)
 
