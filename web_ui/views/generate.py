@@ -208,7 +208,7 @@ class Generate(viewsets.ModelViewSet):
 
             #@markdown **Sampling Settings**
             seed = -1 #@param
-            sampler = 'ddim' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
+            sampler = 'euler' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
             steps = 200 #@param
             scale = 10 #@param
             ddim_eta = 0.0 #@param
