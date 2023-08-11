@@ -92,3 +92,9 @@ else:
     model = settings.ROOT_VAR.model.to(settings.ROOT_VAR.device)
 settings.ROOT_VAR.model = model
 
+
+# Access num_timesteps attribute
+if hasattr(settings.ROOT_VAR.model, 'module'):
+    num_timesteps = settings.ROOT_VAR.model.module.num_timesteps
+else:
+    num_timesteps = settings.ROOT_VAR.model.num_timesteps
