@@ -6,6 +6,8 @@ import gc
 import sys
 
 import torch
+import torch.nn as nn
+import torch.distributed as dist
 import random
 from collections import OrderedDict
 from types import SimpleNamespace
@@ -44,6 +46,13 @@ class Predictor(BasePredictor):
         self.default_model = load_model_from_config(
             local_config, default_model_ckpt_path, map_location="cuda"
         )
+        self.device = "cuda"
+        self.default_model = self.default_model.to(self.device)
+        # Check if there are multiple GPUs and use DataParallel if available
+        if torch.cuda.device_count() > 1:
+            print("Using", torch.cuda.device_count(), "GPUs!")
+            self.default_model = nn.DataParallel(self.default_model)
+
         self.device = "cuda"
         self.default_model = self.default_model.to(self.device)
 
