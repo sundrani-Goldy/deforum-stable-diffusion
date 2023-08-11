@@ -87,7 +87,8 @@ settings.ROOT_VAR.model, settings.ROOT_VAR.device = load_model(settings.ROOT_VAR
 if num_gpus_available >= 2:
     print('Inside the 2 gpu if wala tab')
     settings.ROOT_VAR.model = torch.nn.DataParallel(settings.ROOT_VAR.model)
-settings.ROOT_VAR.model = settings.ROOT_VAR.model.to(settings.ROOT_VAR.device)
-
+    settings.ROOT_VAR.model = settings.ROOT_VAR.model.to(settings.ROOT_VAR.device)
+else:
+    settings.ROOT_VAR.model = settings.ROOT_VAR.model.to(settings.ROOT_VAR.device)
 
 
