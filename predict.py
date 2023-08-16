@@ -98,7 +98,7 @@ class Predictor(BasePredictor):
             default="Protogen_V2.2.ckpt",
         ),
         max_frames: int = Input(
-            description="Number of frames for animation", default=50
+            description="Number of frames for animation", default=200
         ),
         animation_prompts: str = Input(
             default="0: a beautiful apple, trending on Artstation | 50: a beautiful banana, trending on Artstation | 100: a beautiful coconut, trending on Artstation | 150: a beautiful durian, trending on Artstation",
